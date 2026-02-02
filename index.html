@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Question for Eman</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg1: #ffd6e7;
+      --bg2: #ffeef6;
+      --card: #ffffffdd;
+      --yes: #ff3b7a;
+      --yesHover: #ff1f68;
+      --no: #e5e7eb;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      /* Critical for mobile: prevents accidental text selection while tapping */
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100svh; /* svh handles mobile address bars better */
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at top, var(--bg2), var(--bg1));
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow: hidden;
+      padding: 1rem;
+      touch-action: none; /* Prevents screen scrolling */
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 400px; /* Optimal mobile width */
+      padding: 2rem 1.5rem;
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 10;
+    }
+
+    .art {
+      width: 60%;
+      max-width: 200px;
+      height: auto;
+      margin: 0 auto 1rem;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,0.1));
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      line-height: 1.3;
+      margin: 0.5rem 0 1.5rem;
+      color: #333;
+    }
+
+    /* The Zone ensures the No button has space to run around */
+    .button-zone {
+      position: relative;
+      width: 100%;
+      height: 180px; 
+      margin: 0 auto;
+    }
+
+    button {
+      position: absolute;
+      top: 50%;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-radius: 50px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    #yesBtn {
+      left: 20%;
+      transform: translateY(-50%);
+      background: var(--yes);
+      color: white;
+      z-index: 5;
+    }
+
+    #noBtn {
+      left: 60%;
+      transform: translateY(-50%);
+      background: var(--no);
+      color: #333;
+      transition: left 0.3s, top 0.3s; /* Smooth movement */
+    }
+
+    .hint {
+      margin-top: 5px;
+      font-size: 0.85rem;
+      color: #666;
+      opacity: 0.8;
+    }
+
+    /* Success State */
+    .result {
+      display: none;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .result img {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="confettiCanvas"></canvas>
+
+  <main class="card">
+    <svg class="art" viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="heartGrad" x1="0" x2="1">
+          <stop offset="0" stop-color="#ff6b95"/>
+          <stop offset="1" stop-color="#ff3b7a"/>
+        </linearGradient>
+      </defs>
+      <path d="M90 120 C90 70 140 40 190 60 C240 40 290 70 290 120 C290 180 240 210 190 210 C140 210 90 180 90 120Z" fill="#f7d4b2"/>
+      <path d="M110 92 L95 55 L140 78 Z" fill="#f7d4b2"/>
+      <path d="M270 92 L285 55 L240 78 Z" fill="#f7d4b2"/>
+      <path d="M250 50 C250 33 270 25 282 38 C294 25 314 33 314 50 C314 78 282 92 282 106 C282 92 250 78 250 50Z" fill="url(#heartGrad)"/>
+      <circle cx="160" cy="130" r="7" fill="#333"/>
+      <circle cx="220" cy="130" r="7" fill="#333"/>
+      <path d="M190 144 C186 144 182 148 182 152 C182 160 190 164 190 170 C190 164 198 160 198 152 C198 148 194 144 190 144Z" fill="#ff8ba7"/>
+    </svg>
+
+    <h1>Eman, will you be my valentine? 💖</h1>
+
+    <div class="button-zone" id="zone">
+      <button id="yesBtn">Yes</button>
+      <button id="noBtn">No</button>
+    </div>
+
+    <div class="hint" id="hint">Please don't say no 🥺</div>
+
+    <div class="result" id="result">
+      <h2>YAY! 🎉</h2>
+      <p>Best decision ever!</p>
+      <img src="https://media.giphy.com/media/26ufdipQqU2lhNA4g/giphy.gif" alt="Celebration">
+    </div>
+  </main>
+
+  <script>
+    const zone = document.getElementById("zone");
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const result = document.getElementById("result");
+    const hint = document.getElementById("hint");
+
+    // CONFETTI SETUP
+    const confettiCanvas = document.getElementById("confettiCanvas");
+    const myConfetti = confetti.create(confettiCanvas, { resize: true, useWorker: true });
+
+    // SCALE TRACKER
+    let currentScale = 1;
+
+    // --- MOBILE LOGIC ---
+
+    // 1. Logic to move "No" to a random spot
+    function teleportNoButton() {
+      const zoneRect = zone.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      // Calculate max positions
+      const maxX = zoneRect.width - btnRect.width;
+      const maxY = zoneRect.height - btnRect.height;
+
+      // Random coords
+      const randomX = Math.random() * maxX;
+      const randomY = Math.random() * maxY;
+
+      // Apply new position
+      noBtn.style.left = randomX + 'px';
+      noBtn.style.top = randomY + 'px';
+      noBtn.style.transform = 'none'; // Reset transform to avoid centering issues
+      
+      // Grow "Yes" every time "No" runs away
+      growYes();
+    }
+
+    // 2. Logic to grow "Yes"
+    function growYes() {
+      currentScale += 0.2;
+      // Cap the size so it doesn't break the screen
+      if (currentScale > 3) currentScale = 3; 
+      yesBtn.style.transform = `translateY(-50%) scale(${currentScale})`;
+    }
+
+    // --- EVENTS ---
+
+    // DESKTOP: Run away when mouse gets close
+    zone.addEventListener('mousemove', (e) => {
+      const btnRect = noBtn.getBoundingClientRect();
+      const centerX = btnRect.left + btnRect.width / 2;
+      const centerY = btnRect.top + btnRect.height / 2;
+      
+      const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+      
+      // If mouse is within 100px, teleport
+      if (dist < 100) {
+        teleportNoButton();
+      }
+    });
+
+    // MOBILE: Run away on touch
+    // If they manage to tap "No", it moves before the click registers
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // Stop the tap
+      teleportNoButton();
+    });
+
+    // Just in case they click it fast
+    noBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      teleportNoButton();
+    });
+
+    // YES BUTTON CLICK
+    yesBtn.addEventListener('click', () => {
+      // Hide buttons
+      zone.style.display = 'none';
+      hint.style.display = 'none';
+      
+      // Show Result
+      result.style.display = 'block';
+
+      // Launch Confetti
+      launchConfetti();
+    });
+
+    function launchConfetti() {
+      const duration = 3000;
+      const end = Date.now() + duration;
+
+      (function frame() {
+        myConfetti({
+          particleCount: 7,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        myConfetti({
+          particleCount: 7,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
+    }
+  </script>
+</body>
+</html>
